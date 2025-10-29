@@ -3,9 +3,9 @@ package com.david.moneymanager.services.impl;
 import com.david.moneymanager.dto.ProfileDTO;
 import com.david.moneymanager.entities.ProfileEntity;
 import com.david.moneymanager.repository.ProfileRepository;
+import com.david.moneymanager.services.EmailService;
 import com.david.moneymanager.services.ProfileService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -14,6 +14,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ProfileServiceImpl implements ProfileService {
 
+    private final EmailService emailService;
     private final ProfileRepository profileRepository;
 
     @Override
@@ -22,6 +23,13 @@ public class ProfileServiceImpl implements ProfileService {
         ProfileEntity newProfile = toEntity(profileDTO);
         newProfile.setActivationToken(UUID.randomUUID().toString());
         newProfile = profileRepository.save(newProfile);
+        
+        // Send activation link
+        String activationLink = "http://localhost:8080/activate?token=" + newProfile.getActivationToken();
+        String subject = "Activate your account";
+        String text = "Please click the link below to activate your account: " + activationLink;
+        emailService.sendEmail(newProfile.getEmail(), subject, text);
+
         return toDTO(newProfile);
     }
 

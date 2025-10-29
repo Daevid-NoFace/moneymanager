@@ -1,5 +1,6 @@
 package com.david.moneymanager.services.impl;
 
+import com.david.moneymanager.dto.AuthDTO;
 import com.david.moneymanager.dto.ProfileDTO;
 import com.david.moneymanager.entities.ProfileEntity;
 import com.david.moneymanager.repository.ProfileRepository;
@@ -12,9 +13,12 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -24,6 +28,7 @@ public class ProfileServiceImpl implements ProfileService {
     private final EmailService emailService;
     private final ProfileRepository profileRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
 
     @Override
     public ProfileDTO registerProfile(ProfileDTO profileDTO) {
@@ -52,12 +57,14 @@ public class ProfileServiceImpl implements ProfileService {
             .orElse(false);
     }
 
+    @Override
     public boolean isAccountActive(String email) {
         return profileRepository.findByEmail(email)
         .map(ProfileEntity::getIsActive)
         .orElse(false);
     }
 
+    @Override
     public ProfileEntity getCurrentProfile() {
         
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -66,6 +73,7 @@ public class ProfileServiceImpl implements ProfileService {
             .orElseThrow(() -> new UsernameNotFoundException("Profile not found with email: " + authentication.getName()));
     }
 
+    @Override
     public ProfileDTO getPublicProfile(String email) {
         
         ProfileEntity currentUser = null;
@@ -80,6 +88,24 @@ public class ProfileServiceImpl implements ProfileService {
         return toDTO(currentUser);
     }
 
+    @Override
+    public Map<String, Object> authenticateAndGenerateToken(AuthDTO authDTO) {
+        
+        try {
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authDTO.getEmail(), authDTO.getPassword()));
+            
+            // Generate JWT token
+            return Map.of(
+                "token", "JWT token",
+                "user", getPublicProfile(authDTO.getEmail())
+            );
+
+        } catch (Exception e) {
+            throw new RuntimeException("Invalid credentials");
+        }
+    }
+
+    @Override
     public ProfileEntity toEntity(ProfileDTO profileDTO) {
         return ProfileEntity.builder()
             .id(profileDTO.getId())
@@ -92,6 +118,7 @@ public class ProfileServiceImpl implements ProfileService {
             .build();
     }
 
+    @Override
     public ProfileDTO toDTO(ProfileEntity profileEntity) {
         return ProfileDTO.builder()
             .id(profileEntity.getId())

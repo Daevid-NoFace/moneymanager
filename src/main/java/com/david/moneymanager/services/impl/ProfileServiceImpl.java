@@ -25,12 +25,23 @@ public class ProfileServiceImpl implements ProfileService {
         newProfile = profileRepository.save(newProfile);
         
         // Send activation link
-        String activationLink = "http://localhost:8080/activate?token=" + newProfile.getActivationToken();
+        String activationLink = "http://localhost:8080/api/v1.0/activate?token=" + newProfile.getActivationToken();
         String subject = "Activate your account";
         String text = "Please click the link below to activate your account: " + activationLink;
         emailService.sendEmail(newProfile.getEmail(), subject, text);
 
         return toDTO(newProfile);
+    }
+
+    @Override
+    public boolean activateProfile(String activationToken) {
+        return profileRepository.findByActivationToken(activationToken)
+            .map(profile -> {
+                profile.setIsActive(true);
+                profileRepository.save(profile);
+                return true;
+            })
+            .orElse(false);
     }
 
     public ProfileEntity toEntity(ProfileDTO profileDTO) {

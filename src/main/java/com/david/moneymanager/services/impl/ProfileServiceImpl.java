@@ -16,6 +16,7 @@ public class ProfileServiceImpl implements ProfileService {
 
     private final ProfileRepository profileRepository;
 
+    @Override
     public ProfileDTO registerProfile(ProfileDTO profileDTO) {
 
         ProfileEntity newProfile = toEntity(profileDTO);

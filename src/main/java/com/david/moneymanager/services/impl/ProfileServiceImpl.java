@@ -6,8 +6,15 @@ import com.david.moneymanager.repository.ProfileRepository;
 import com.david.moneymanager.services.EmailService;
 import com.david.moneymanager.services.ProfileService;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
 import java.util.UUID;
 
 @Service
@@ -16,6 +23,7 @@ public class ProfileServiceImpl implements ProfileService {
 
     private final EmailService emailService;
     private final ProfileRepository profileRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public ProfileDTO registerProfile(ProfileDTO profileDTO) {
@@ -44,12 +52,40 @@ public class ProfileServiceImpl implements ProfileService {
             .orElse(false);
     }
 
+    public boolean isAccountActive(String email) {
+        return profileRepository.findByEmail(email)
+        .map(ProfileEntity::getIsActive)
+        .orElse(false);
+    }
+
+    public ProfileEntity getCurrentProfile() {
+        
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        
+        return profileRepository.findByEmail(authentication.getName())
+            .orElseThrow(() -> new UsernameNotFoundException("Profile not found with email: " + authentication.getName()));
+    }
+
+    public ProfileDTO getPublicProfile(String email) {
+        
+        ProfileEntity currentUser = null;
+        
+        if (email == null) {
+            currentUser = getCurrentProfile();
+        } else {
+            currentUser = profileRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Profile not found with email: " + email));
+        }
+
+        return toDTO(currentUser);
+    }
+
     public ProfileEntity toEntity(ProfileDTO profileDTO) {
         return ProfileEntity.builder()
             .id(profileDTO.getId())
             .fullname(profileDTO.getFullname())
             .email(profileDTO.getEmail())
-            .password(profileDTO.getPassword())
+            .password(passwordEncoder.encode(profileDTO.getPassword()))
             .profileImageUrl(profileDTO.getProfileImageUrl())
             .createdAt(profileDTO.getCreatedAt())
             .updatedAt(profileDTO.getUpdatedAt())

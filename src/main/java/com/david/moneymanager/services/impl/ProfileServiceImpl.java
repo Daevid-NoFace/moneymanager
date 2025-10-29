@@ -6,10 +6,11 @@ import com.david.moneymanager.entities.ProfileEntity;
 import com.david.moneymanager.repository.ProfileRepository;
 import com.david.moneymanager.services.EmailService;
 import com.david.moneymanager.services.ProfileService;
+import com.david.moneymanager.utils.JwtUtil;
+
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,7 +18,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 
-import java.security.Principal;
 import java.util.Map;
 import java.util.UUID;
 
@@ -29,6 +29,7 @@ public class ProfileServiceImpl implements ProfileService {
     private final ProfileRepository profileRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final JwtUtil jwtUtil;
 
     @Override
     public ProfileDTO registerProfile(ProfileDTO profileDTO) {
@@ -95,8 +96,9 @@ public class ProfileServiceImpl implements ProfileService {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authDTO.getEmail(), authDTO.getPassword()));
             
             // Generate JWT token
+            String token = jwtUtil.generateToken(authDTO.getEmail());
             return Map.of(
-                "token", "JWT token",
+                "token", token,
                 "user", getPublicProfile(authDTO.getEmail())
             );
 

@@ -23,5 +23,5 @@ public interface CategoryRepository extends JpaRepository<CategoryEntity, Long>{
 
     // Check if category name exists by profile id
     // select * from tbl_categories where name = ?1 and profile_id = ?2
-    Boolean existByNameAndProfileId(String name, Long profileId);
+    Boolean existsByNameAndProfileId(String name, Long profileId);
 }

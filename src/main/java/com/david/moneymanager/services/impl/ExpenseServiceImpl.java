@@ -12,6 +12,10 @@ import com.david.moneymanager.services.ProfileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class ExpenseServiceImpl implements ExpenseService {
@@ -30,6 +34,18 @@ public class ExpenseServiceImpl implements ExpenseService {
         ExpenseEntity newExpense = toEntity(expenseDTO, profile, category);
         newExpense = expenseRepository.save(newExpense);
         return toDTO(newExpense);
+    }
+
+    // Retrieves all expenses for current month/based on the start date and end date
+    @Override
+    public List<ExpenseDTO> getCurrentMonthExpensesForCurrentUser() {
+        ProfileEntity profile = profileService.getCurrentProfile();
+        LocalDate now = LocalDate.now();
+        LocalDate startDate = now.withDayOfMonth(1);
+        LocalDate endDate = now.withDayOfMonth(now.lengthOfMonth());
+        List<ExpenseEntity> list = expenseRepository.findByProfileIdAndDateBetween(profile.getId(), startDate, endDate);
+
+        return list.stream().map(this::toDTO).toList();
     }
 
     // Helper methods

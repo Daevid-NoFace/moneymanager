@@ -11,6 +11,9 @@ import com.david.moneymanager.services.ProfileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class IncomeServiceImpl implements IncomeService {
@@ -29,6 +32,18 @@ public class IncomeServiceImpl implements IncomeService {
         IncomeEntity newIncome = toEntity(incomeDTO, profile, category);
         newIncome = incomeRepository.save(newIncome);
         return toDTO(newIncome);
+    }
+
+    // Retrieves all incomes for current month/based on the start date and end date
+    @Override
+    public List<IncomeDTO> getCurrentMonthIncomesForCurrentUser() {
+        ProfileEntity profile = profileService.getCurrentProfile();
+        LocalDate now = LocalDate.now();
+        LocalDate startDate = now.withDayOfMonth(1);
+        LocalDate endDate = now.withDayOfMonth(now.lengthOfMonth());
+        List<IncomeEntity> list = incomeRepository.findByProfileIdAndDateBetween(profile.getId(), startDate, endDate);
+
+        return list.stream().map(this::toDTO).toList();
     }
 
     // Helper methods

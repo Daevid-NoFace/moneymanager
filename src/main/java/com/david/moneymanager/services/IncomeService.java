@@ -1,7 +1,9 @@
 package com.david.moneymanager.services;
 
+import com.david.moneymanager.dto.ExpenseDTO;
 import com.david.moneymanager.dto.IncomeDTO;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface IncomeService {
@@ -13,4 +15,10 @@ public interface IncomeService {
 
     // Delete income by id for current user
     void deleteIncome(Long incomeId);
+
+    // Get latest 5 incomes for current user
+    List<IncomeDTO> getLatestIncomesForCurrentUser();
+
+    // Get total income for current user
+    BigDecimal getTotalIncomeForCurrentUser();
 }

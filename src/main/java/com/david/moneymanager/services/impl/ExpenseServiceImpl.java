@@ -12,6 +12,7 @@ import com.david.moneymanager.services.ProfileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -59,6 +60,22 @@ public class ExpenseServiceImpl implements ExpenseService {
         }
 
         expenseRepository.delete(entity);
+    }
+
+    @Override
+    public List<ExpenseDTO> getLatestExpensesForCurrentUser() {
+        ProfileEntity profile = profileService.getCurrentProfile();
+        List<ExpenseEntity> list = expenseRepository.findTop5ByProfileIdOrderByDateDesc(profile.getId());
+
+        return list.stream().map(this::toDTO).toList();
+    }
+
+    @Override
+    public BigDecimal getTotalExpensesForCurrentUser() {
+        ProfileEntity profile = profileService.getCurrentProfile();
+        BigDecimal total = expenseRepository.findTotalExpenseByProfileId(profile.getId());
+
+        return total != null ? total : BigDecimal.ZERO;
     }
 
     // Helper methods

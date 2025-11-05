@@ -10,4 +10,7 @@ public interface IncomeService {
 
     // Retrieves all incomes for current month/based on the start date and end date
     List<IncomeDTO> getCurrentMonthIncomesForCurrentUser();
+
+    // Delete income by id for current user
+    void deleteIncome(Long incomeId);
 }

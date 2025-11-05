@@ -2,6 +2,7 @@ package com.david.moneymanager.services.impl;
 
 import com.david.moneymanager.dto.IncomeDTO;
 import com.david.moneymanager.entities.CategoryEntity;
+import com.david.moneymanager.entities.ExpenseEntity;
 import com.david.moneymanager.entities.IncomeEntity;
 import com.david.moneymanager.entities.ProfileEntity;
 import com.david.moneymanager.repository.CategoryRepository;
@@ -44,6 +45,19 @@ public class IncomeServiceImpl implements IncomeService {
         List<IncomeEntity> list = incomeRepository.findByProfileIdAndDateBetween(profile.getId(), startDate, endDate);
 
         return list.stream().map(this::toDTO).toList();
+    }
+
+    @Override
+    public void deleteIncome(Long incomeId) {
+        ProfileEntity profile = profileService.getCurrentProfile();
+        IncomeEntity entity = incomeRepository.findById(incomeId)
+                .orElseThrow(() -> new RuntimeException("Income not found"));
+
+        if (!entity.getProfile().getId().equals(profile.getId())) {
+            throw new RuntimeException("Unauthorized to delete this income");
+        }
+
+        incomeRepository.delete(entity);
     }
 
     // Helper methods

@@ -10,4 +10,7 @@ public interface ExpenseService {
      
     // Retrieves all expenses for current month/based on the start date and end date
     List<ExpenseDTO> getCurrentMonthExpensesForCurrentUser();
+
+    // Delete expense by id for current user
+    void deleteExpense(Long expenseId);
 }

@@ -1,6 +1,5 @@
 package com.david.moneymanager.controllers;
 
-import com.david.moneymanager.dto.ExpenseDTO;
 import com.david.moneymanager.dto.IncomeDTO;
 import com.david.moneymanager.services.IncomeService;
 import lombok.RequiredArgsConstructor;
@@ -27,5 +26,11 @@ public class IncomeController {
     public ResponseEntity<List<IncomeDTO>> getIncomes() {
         List<IncomeDTO> expenses = incomeService.getCurrentMonthIncomesForCurrentUser();
         return ResponseEntity.ok(expenses);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteIncome(@PathVariable Long id) {
+        incomeService.deleteIncome(id);
+        return ResponseEntity.noContent().build();
     }
 }

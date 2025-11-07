@@ -10,6 +10,7 @@ import com.david.moneymanager.services.CategoryService;
 import com.david.moneymanager.services.ExpenseService;
 import com.david.moneymanager.services.ProfileService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -76,6 +77,14 @@ public class ExpenseServiceImpl implements ExpenseService {
         BigDecimal total = expenseRepository.findTotalExpenseByProfileId(profile.getId());
 
         return total != null ? total : BigDecimal.ZERO;
+    }
+
+    @Override
+    public List<ExpenseDTO> filterExpenses(LocalDate startDate, LocalDate endDate, String keyword, Sort sort) {
+        ProfileEntity profile = profileService.getCurrentProfile();
+        List<ExpenseEntity> list = expenseRepository.findByProfileIdAndDateBetweenAndNameContainingIgnoreCase(profile.getId(), startDate, endDate, keyword, sort);
+
+        return list.stream().map(this::toDTO).toList();
     }
 
     // Helper methods

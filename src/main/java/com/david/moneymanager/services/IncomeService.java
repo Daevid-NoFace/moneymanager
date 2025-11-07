@@ -2,8 +2,10 @@ package com.david.moneymanager.services;
 
 import com.david.moneymanager.dto.ExpenseDTO;
 import com.david.moneymanager.dto.IncomeDTO;
+import org.springframework.data.domain.Sort;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 public interface IncomeService {
@@ -21,4 +23,7 @@ public interface IncomeService {
 
     // Get total income for current user
     BigDecimal getTotalIncomeForCurrentUser();
+
+    // Filter incomes
+    List<IncomeDTO> filterIncomes(LocalDate startDate, LocalDate endDate, String keyword, Sort sort);
 }

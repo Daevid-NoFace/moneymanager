@@ -1,8 +1,10 @@
 package com.david.moneymanager.services;
 
 import com.david.moneymanager.dto.ExpenseDTO;
+import org.springframework.data.domain.Sort;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 public interface ExpenseService {
@@ -20,4 +22,7 @@ public interface ExpenseService {
 
     // Get total expenses for current user
     BigDecimal getTotalExpensesForCurrentUser();
+
+    // Filter expenses
+    List<ExpenseDTO> filterExpenses(LocalDate startDate, LocalDate endDate, String keyword, Sort sort);
 }

@@ -23,6 +23,8 @@ public interface IncomeRepository extends JpaRepository<IncomeEntity, Long> {
     BigDecimal findTotalIncomeByProfileId(@Param("profileId") Long profileId);
 
     // Find by profile id and date between and name containing ignore case
+    // select * from tbl_incomes where profile_id = ?1 and date between ?2 and ?3 and name like %?4%
+    //@Query("select * from tbl_incomes where profile_id = ?1 and date between ?2 and ?3 and name like %?4% order by ?5")
     List<IncomeEntity> findByProfileIdAndDateBetweenAndNameContainingIgnoreCase(
             Long profileId,
             LocalDate startDate,

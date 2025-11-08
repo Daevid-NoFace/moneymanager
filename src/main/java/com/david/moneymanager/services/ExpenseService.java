@@ -1,6 +1,7 @@
 package com.david.moneymanager.services;
 
 import com.david.moneymanager.dto.ExpenseDTO;
+import org.apache.commons.math3.analysis.function.Exp;
 import org.springframework.data.domain.Sort;
 
 import java.math.BigDecimal;
@@ -25,4 +26,7 @@ public interface ExpenseService {
 
     // Filter expenses
     List<ExpenseDTO> filterExpenses(LocalDate startDate, LocalDate endDate, String keyword, Sort sort);
+
+    // Notification
+    List<ExpenseDTO> getExpensesForUserOnDate(Long profileId, LocalDate date);
 }
